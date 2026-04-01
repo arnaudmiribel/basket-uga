@@ -1,4 +1,5 @@
 pandas>=2.0.0
 streamlit>=1.32.0
 streamlit-mermaid-interactive>=0.1.12
+streamlit-extras>=0.6.0
 openpyxl>=3.1.0

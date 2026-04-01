@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import List, Tuple, Dict
 import math
 from streamlit_mermaid_interactive import mermaid
+from streamlit_extras.card_selector import card_selector
 
 st.set_page_config(
     page_title="Basket UGA - Tournament organizer",
@@ -290,16 +291,18 @@ women_num_pools, women_pool_size = calculate_optimal_pools(
 
 if num_men_teams > 0 or num_women_teams > 0:
 
-    tab1, tab2, tab3, tab4 = st.tabs(
+    selected_tab = card_selector(
         [
-            ":material/tune: Structure des poules",
-            ":material/groups: Équipes & joueurs",
-            ":material/calendar_month: Planning",
-            ":material/summarize: Résumé",
-        ]
+            dict(icon=":material/tune:", title="Structure", description="Configuration des poules"),
+            dict(icon=":material/groups:", title="Équipes", description="Joueurs et effectifs"),
+            dict(icon=":material/calendar_month:", title="Planning", description="Calendrier des matchs"),
+            dict(icon=":material/summarize:", title="Résumé", description="Récapitulatif par poule"),
+        ],
+        key="main_nav",
+        default=0,
     )
 
-    with tab1:
+    if selected_tab == 0:
         st.header("Configuration des poules")
 
         with st.container(border=True):
@@ -410,7 +413,7 @@ if num_men_teams > 0 or num_women_teams > 0:
         st.session_state.men_num_pools = men_num_pools
         st.session_state.women_num_pools = women_num_pools
 
-    with tab2:
+    elif selected_tab == 1:
         col1, col2 = st.columns(2)
 
         men_teams = []
@@ -487,7 +490,7 @@ if num_men_teams > 0 or num_women_teams > 0:
         st.session_state.men_rosters = men_rosters
         st.session_state.women_rosters = women_rosters
 
-    with tab3:
+    elif selected_tab == 2:
         men_teams = st.session_state.get(
             "men_teams", [f"Équipe M{i+1}" for i in range(num_men_teams)]
         )
@@ -697,7 +700,7 @@ if num_men_teams > 0 or num_women_teams > 0:
                 icon=":material/download:",
             )
 
-    with tab4:
+    elif selected_tab == 3:
         st.header(":material/list: Récapitulatif par poule")
 
         men_pools = st.session_state.get("men_pools", {})
