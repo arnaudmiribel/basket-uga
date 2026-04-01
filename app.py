@@ -674,13 +674,28 @@ if num_men_teams > 0 or num_women_teams > 0:
         export_df = pd.DataFrame(export_data)
         csv = export_df.to_csv(index=False)
         
-        st.download_button(
-            label="Télécharger le planning (CSV)",
-            data=csv,
-            file_name="basket_uga_resultats.csv",
-            mime="text/csv",
-            icon=":material/download:",
-        )
+        import io
+        excel_buffer = io.BytesIO()
+        export_df.to_excel(excel_buffer, index=False, engine="openpyxl")
+        excel_buffer.seek(0)
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.download_button(
+                label="Télécharger CSV",
+                data=csv,
+                file_name="basket_uga_resultats.csv",
+                mime="text/csv",
+                icon=":material/download:",
+            )
+        with col2:
+            st.download_button(
+                label="Télécharger Excel",
+                data=excel_buffer,
+                file_name="basket_uga_resultats.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                icon=":material/download:",
+            )
 
     with tab4:
         st.header(":material/list: Récapitulatif par poule")
