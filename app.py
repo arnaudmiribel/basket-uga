@@ -514,8 +514,9 @@ if num_men_teams > 0 or num_women_teams > 0:
 
         st.header(":material/account_tree: Structure du tournoi")
 
-        mermaid_code = generate_mermaid_diagram(men_pools, women_pools)
-        mermaid(mermaid_code)
+        with st.container(border=True):
+            mermaid_code = generate_mermaid_diagram(men_pools, women_pools)
+            mermaid(mermaid_code)
 
         # Generate schedule automatically
         scheduled, stats = schedule_games(
@@ -540,124 +541,69 @@ if num_men_teams > 0 or num_women_teams > 0:
 
         st.subheader(":material/view_timeline: Planning par rotation")
 
-        # Build Gantt chart data with rotations
-        gantt_data = []
-        for game in scheduled:
-            rotation = game.start_time // game_duration + 1
-            t1 = game.team1.replace("Équipe ", "")
-            t2 = game.team2.replace("Équipe ", "")
-            gantt_data.append({
-                "Terrain": f"Terrain {game.field}",
-                "Rotation": rotation,
-                "Match": f"{game.team1} vs {game.team2}",
-                "Label": f"{t1}\nVS\n{t2}",
-                "Tournoi": "Masculin" if game.tournament == "men" else "Féminin",
-                "Poule": f"Poule {game.pool}",
-            })
-        
-        gantt_df = pd.DataFrame(gantt_data)
-        max_rotation = gantt_df["Rotation"].max() if len(gantt_df) > 0 else 1
-        
-        # Create Gantt chart with Altair - rectangles
-        bars = alt.Chart(gantt_df).mark_rect(
-            cornerRadius=4,
-            stroke="white",
-            strokeWidth=2
-        ).encode(
-            x=alt.X(
-                "Rotation:O",
-                title="Rotation (6 min chacune)",
-                axis=alt.Axis(labelAngle=0)
-            ),
-            y=alt.Y("Terrain:N", title=None, sort=[f"Terrain {i+1}" for i in range(num_fields)]),
-            color=alt.Color(
-                "Tournoi:N",
-                scale=alt.Scale(
-                    domain=["Masculin", "Féminin"],
-                    range=["#1B2838", "#F47920"]
-                ),
-                legend=alt.Legend(title="Tournoi", orient="top")
-            ),
-            tooltip=["Terrain", "Rotation", "Match", "Tournoi", "Poule"]
-        )
-        
-        # Add text labels on top
-        text = alt.Chart(gantt_df).mark_text(
-            align="center",
-            baseline="middle",
-            color="white",
-            fontSize=10,
-            fontWeight="bold",
-            lineBreak="\n"
-        ).encode(
-            x=alt.X("Rotation:O"),
-            y=alt.Y("Terrain:N", sort=[f"Terrain {i+1}" for i in range(num_fields)]),
-            text="Label:N"
-        )
-        
-        gantt_chart = (bars + text).properties(
-            height=60 * num_fields + 60
-        )
-
-        st.altair_chart(gantt_chart, use_container_width=True)
-        
-        st.caption(f"{int(max_rotation)} rotations × 6 min = {int(max_rotation) * 6} min total")
-
-        st.subheader(":material/stadium: Planning par terrain")
-
-        # Create tabs for each field
-        field_tabs = st.tabs([f"Terrain {i+1}" for i in range(num_fields)])
-
-        for field_idx, field_tab in enumerate(field_tabs):
-            field_num = field_idx + 1
-            field_games = sorted(
-                [g for g in scheduled if g.field == field_num],
-                key=lambda g: g.start_time,
-            )
-
-            with field_tab:
-                if not field_games:
-                    st.caption("Aucun match sur ce terrain")
-                    continue
-
-                for game in field_games:
-                    with st.container(border=True):
-                        c1, c2, c3 = st.columns([1, 2, 1])
-                        with c1:
-                            st.caption(
-                                f"{format_time(game.start_time)} - {format_time(game.end_time)}"
-                            )
-                        with c2:
-                            st.markdown(f"**{game.team1}** vs **{game.team2}**")
-                        with c3:
-                            if game.tournament == "men":
-                                st.badge(
-                                    f"M-{game.pool}",
-                                    icon=":material/male:",
-                                    color="blue",
-                                )
-                            else:
-                                st.badge(
-                                    f"F-{game.pool}",
-                                    icon=":material/female:",
-                                    color="orange",
-                                )
-
-        st.subheader(":material/schedule: Vue chronologique")
-
-        timeline_data = []
-        for game in sorted(scheduled, key=lambda g: (g.start_time, g.field)):
-            timeline_data.append(
-                {
-                    "Heure": f"{format_time(game.start_time)} - {format_time(game.end_time)}",
-                    "Terrain": f"T{game.field}",
-                    "Poule": f"{game.tournament[0].upper()}-{game.pool}",
+        with st.container(border=True):
+            # Build Gantt chart data with rotations
+            gantt_data = []
+            for game in scheduled:
+                rotation = game.start_time // game_duration + 1
+                t1 = game.team1.replace("Équipe ", "")
+                t2 = game.team2.replace("Équipe ", "")
+                gantt_data.append({
+                    "Terrain": f"Terrain {game.field}",
+                    "Rotation": rotation,
                     "Match": f"{game.team1} vs {game.team2}",
-                }
+                    "Label": f"{t1}\nVS\n{t2}",
+                    "Tournoi": "Masculin" if game.tournament == "men" else "Féminin",
+                    "Poule": f"Poule {game.pool}",
+                })
+            
+            gantt_df = pd.DataFrame(gantt_data)
+            max_rotation = gantt_df["Rotation"].max() if len(gantt_df) > 0 else 1
+            
+            # Create Gantt chart with Altair - rectangles
+            bars = alt.Chart(gantt_df).mark_rect(
+                cornerRadius=4,
+                stroke="white",
+                strokeWidth=2
+            ).encode(
+                x=alt.X(
+                    "Rotation:O",
+                    title="Rotation (6 min chacune)",
+                    axis=alt.Axis(labelAngle=0)
+                ),
+                y=alt.Y("Terrain:N", title=None, sort=[f"Terrain {i+1}" for i in range(num_fields)]),
+                color=alt.Color(
+                    "Tournoi:N",
+                    scale=alt.Scale(
+                        domain=["Masculin", "Féminin"],
+                        range=["#1B2838", "#F47920"]
+                    ),
+                    legend=alt.Legend(title="Tournoi", orient="top")
+                ),
+                tooltip=["Terrain", "Rotation", "Match", "Tournoi", "Poule"]
+            )
+            
+            # Add text labels on top
+            text = alt.Chart(gantt_df).mark_text(
+                align="center",
+                baseline="middle",
+                color="white",
+                fontSize=10,
+                fontWeight="bold",
+                lineBreak="\n"
+            ).encode(
+                x=alt.X("Rotation:O"),
+                y=alt.Y("Terrain:N", sort=[f"Terrain {i+1}" for i in range(num_fields)]),
+                text="Label:N"
+            )
+            
+            gantt_chart = (bars + text).properties(
+                height=60 * num_fields + 60
             )
 
-        df = pd.DataFrame(timeline_data)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+            st.altair_chart(gantt_chart, use_container_width=True)
+            
+            st.caption(f"{int(max_rotation)} rotations × 6 min = {int(max_rotation) * 6} min total")
 
         # Export for scoring
         st.subheader(":material/download: Export pour résultats")
@@ -682,8 +628,7 @@ if num_men_teams > 0 or num_women_teams > 0:
         export_df.to_excel(excel_buffer, index=False, engine="openpyxl")
         excel_buffer.seek(0)
         
-        col1, col2 = st.columns(2)
-        with col1:
+        with st.container(horizontal=True):
             st.download_button(
                 label="Télécharger CSV",
                 data=csv,
@@ -691,7 +636,6 @@ if num_men_teams > 0 or num_women_teams > 0:
                 mime="text/csv",
                 icon=":material/download:",
             )
-        with col2:
             st.download_button(
                 label="Télécharger Excel",
                 data=excel_buffer,
