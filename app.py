@@ -252,6 +252,14 @@ default_data = load_default_data()
 default_men_teams = {k: v for k, v in default_data.items() if v["genre"] == "M"}
 default_women_teams = {k: v for k, v in default_data.items() if v["genre"] == "F"}
 
+# Predefined pools for default teams
+DEFAULT_MEN_POOLS = {
+    "A": ["74 Pétard", "Génération Miracle", "Team AGJT", "Air Ballers", "Arennedenoel"],
+    "B": ["Bigcho", "Droit Éco", "G15-1", "Rookies 38"],
+    "C": ["Goon Squad", "Les Eucubiens", "AILA", "Nom d'équipe"],
+    "D": ["NRN", "Les Shars", "UGA 13", "UGA 9"],
+}
+
 
 # Header
 st.title(":material/sports_basketball: Basket UGA tournament")
@@ -285,6 +293,9 @@ with st.sidebar:
 men_num_pools, men_pool_size = calculate_optimal_pools(
     num_men_teams, num_fields, game_duration, total_time
 )
+# Use 4 pools for men by default (predefined)
+if num_men_teams == len(default_men_teams):
+    men_num_pools = 4
 women_num_pools, women_pool_size = calculate_optimal_pools(
     num_women_teams, num_fields, game_duration, total_time
 )
@@ -497,12 +508,20 @@ if num_men_teams > 0 or num_women_teams > 0:
         women_teams = st.session_state.get(
             "women_teams", [f"Équipe F{i+1}" for i in range(num_women_teams)]
         )
-        men_num_pools = st.session_state.get("men_num_pools", 3)
+        men_num_pools = st.session_state.get("men_num_pools", 4)
         women_num_pools = st.session_state.get("women_num_pools", 1)
 
-        men_pools = (
-            distribute_teams_to_pools(men_teams, men_num_pools) if men_teams else {}
-        )
+        # Use predefined pools if teams match default
+        default_men_team_names = set(default_men_teams.keys())
+        current_men_team_names = set(men_teams)
+        
+        if current_men_team_names == default_men_team_names and men_num_pools == 4:
+            men_pools = DEFAULT_MEN_POOLS
+        else:
+            men_pools = (
+                distribute_teams_to_pools(men_teams, men_num_pools) if men_teams else {}
+            )
+        
         women_pools = (
             distribute_teams_to_pools(women_teams, women_num_pools)
             if women_teams
