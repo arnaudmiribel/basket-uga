@@ -1,8 +1,7 @@
 [project]
 name = "basket"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "Basketball tournament organizer for Basket UGA"
 requires-python = ">=3.12"
 dependencies = [
     "pandas>=3.0.2",
