@@ -656,6 +656,32 @@ if num_men_teams > 0 or num_women_teams > 0:
         df = pd.DataFrame(timeline_data)
         st.dataframe(df, use_container_width=True, hide_index=True)
 
+        # Export for scoring
+        st.subheader(":material/download: Export pour résultats")
+        
+        export_data = []
+        for game in sorted(scheduled, key=lambda g: (g.start_time, g.field)):
+            export_data.append({
+                "Rotation": (game.start_time // game_duration) + 1,
+                "Terrain": game.field,
+                "Poule": f"{game.tournament[0].upper()}-{game.pool}",
+                "Équipe 1": game.team1,
+                "Équipe 2": game.team2,
+                "Score 1": "",
+                "Score 2": "",
+            })
+        
+        export_df = pd.DataFrame(export_data)
+        csv = export_df.to_csv(index=False)
+        
+        st.download_button(
+            label="Télécharger le planning (CSV)",
+            data=csv,
+            file_name="basket_uga_resultats.csv",
+            mime="text/csv",
+            icon=":material/download:",
+        )
+
     with tab4:
         st.header(":material/list: Récapitulatif par poule")
 
