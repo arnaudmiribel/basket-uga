@@ -512,7 +512,7 @@ if num_men_teams > 0 or num_women_teams > 0:
         st.session_state.men_pools = men_pools
         st.session_state.women_pools = women_pools
 
-        st.header(":material/account_tree: Structure du tournoi")
+        st.subheader(":material/account_tree: Structure du tournoi")
 
         with st.container(border=True):
             mermaid_code = generate_mermaid_diagram(men_pools, women_pools)
