@@ -303,7 +303,7 @@ if num_men_teams > 0 or num_women_teams > 0:
     )
 
     if selected_tab == 0:
-        st.header("Configuration des poules")
+        st.subheader("Configuration des poules")
 
         with st.container(border=True):
             st.subheader(":material/lightbulb: Hypothèses de calcul")
@@ -645,7 +645,7 @@ if num_men_teams > 0 or num_women_teams > 0:
             )
 
     elif selected_tab == 3:
-        st.header(":material/list: Récapitulatif par poule")
+        st.subheader(":material/list: Récapitulatif par poule")
 
         men_pools = st.session_state.get("men_pools", {})
         women_pools = st.session_state.get("women_pools", {})
